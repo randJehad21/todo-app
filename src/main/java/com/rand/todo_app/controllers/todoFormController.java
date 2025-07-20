@@ -25,9 +25,11 @@ public class todoFormController {
     private TodoItemRepository todoItemRepository;
 
     @GetMapping("/create-todo")
-    public String showCreateForm(toDoItem todoItem){
-        return "add-todo-item";
-    }
+     public String showCreateForm(Model model) {
+         model.addAttribute("todoItem", new toDoItem());
+         return "add-todo-item";
+            }
+
 
     @GetMapping("/edit/{id}")
     public String showUpdateForm(@PathVariable("id") long id, Model model) {

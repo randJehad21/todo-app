@@ -14,11 +14,14 @@ import jakarta.validation.Valid;
 import org.springframework.ui.Model;
 
 import java.time.Instant;
+import java.time.ZoneId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 //import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @Controller
@@ -34,8 +37,23 @@ public class todoitemController {
         logger.debug("Request to GET index");
         ModelAndView modelAndView= new ModelAndView("index");
         modelAndView.addObject("todoItems", todoItemRepository.findAll());
+        modelAndView.addObject("today", Instant.now().atZone(ZoneId.systemDefault()).toLocalDate().getDayOfWeek());
         return modelAndView; // will look for index.html in templates
     }
+
+    @PostMapping("/todo")
+    public String createTodoItem(@Valid toDoItem todoItem, BindingResult result, Model model) {
+        if(result.hasErrors()){
+            model.addAttribute("todoItem", todoItem);
+            return "add-todo-item";
+        }        
+        todoItem.setCreatedDate(Instant.now());
+        todoItem.setModifiedDate(Instant.now());
+        todoItemRepository.save(todoItem);
+        return "redirect:/";
+    }
+    
+
     @PostMapping("/todo/{id}")
     public String updateTodoItem(@PathVariable("id") long id, @Valid toDoItem todoItem, BindingResult result, Model model){
         if(result.hasErrors()){
